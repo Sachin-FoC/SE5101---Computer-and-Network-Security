@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SE5101 - Lab Sheet 04: Network Traffic Analysis with Wireshark</title>
+<style>
+    :root {
+        --navy: #1b2a4a;
+        --blue: #2c5aa0;
+        --light-blue: #eaf1fb;
+        --accent: #d9534f;
+        --gray: #555;
+        --border: #d7e0ec;
+        --green: #2e8b57;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #222;
+        line-height: 1.6;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 25px 80px;
+        background: #fbfcfe;
+    }
+    header {
+        border-bottom: 4px solid var(--blue);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+    header h1 {
+        color: var(--navy);
+        margin: 0 0 5px;
+        font-size: 1.7em;
+    }
+    header .module {
+        color: var(--blue);
+        font-weight: 600;
+        font-size: 1.1em;
+    }
+    header .meta {
+        color: var(--gray);
+        font-size: 0.95em;
+        margin-top: 8px;
+    }
+    h2 {
+        color: var(--navy);
+        border-left: 5px solid var(--blue);
+        padding: 6px 12px;
+        background: var(--light-blue);
+        margin-top: 40px;
+        font-size: 1.25em;
+    }
+    h3 {
+        color: var(--blue);
+        margin-top: 25px;
+        font-size: 1.05em;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 4px;
+    }
+    .box {
+        background: var(--light-blue);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 15px 20px;
+        margin: 15px 0;
+    }
+    .warning {
+        background: #fff4e5;
+        border-left: 5px solid #e0a015;
+        padding: 12px 18px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    .tip {
+        background: #eafaf1;
+        border-left: 5px solid var(--green);
+        padding: 12px 18px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    .task {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--blue);
+        border-radius: 4px;
+        padding: 15px 20px;
+        margin: 18px 0;
+    }
+    .task-title {
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 8px;
+        font-size: 1.05em;
+    }
+    code, pre {
+        font-family: 'Consolas', 'Courier New', monospace;
+        background: #1e1e2e;
+        color: #d4d4f4;
+        border-radius: 4px;
+    }
+    code {
+        padding: 2px 6px;
+        font-size: 0.92em;
+    }
+    pre {
+        padding: 12px 16px;
+        overflow-x: auto;
+        margin: 10px 0;
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.95em;
+    }
+    th, td {
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background: var(--blue);
+        color: white;
+    }
+    tr:nth-child(even) { background: var(--light-blue); }
+    .fill-box {
+        display: inline-block;
+        min-width: 180px;
+        border-bottom: 1px dashed var(--gray);
+        margin: 4px 6px;
+    }
+    .answer-area {
+        border: 1px dashed #aaa;
+        background: #fff;
+        min-height: 60px;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 8px 0;
+        color: #999;
+        font-style: italic;
+    }
+    .checklist li { margin-bottom: 6px; }
+    footer {
+        margin-top: 50px;
+        border-top: 2px solid var(--border);
+        padding-top: 15px;
+        color: var(--gray);
+        font-size: 0.85em;
+        text-align: center;
+    }
+    .step-num {
+        display: inline-block;
+        background: var(--navy);
+        color: white;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 22px;
+        font-size: 0.8em;
+        margin-right: 8px;
+    }
+    .filter-table code { color: var(--navy); background: #f0f4fa; padding: 2px 6px; border-radius: 3px; }
+    @media print {
+        body { max-width: 100%; }
+        h2 { break-before: page; }
+        header + h2 { break-before: avoid; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="module">SE5101 – Computer and Network Security</div>
+    <h1>Lab Sheet 04: Network Traffic Analysis with Wireshark</h1>
+    <div class="meta">
+        Duration: 2.5–3 hours &nbsp;|&nbsp; Environment: Kali Linux VM + one Target/Peer VM (Host-Only network) &nbsp;|&nbsp;
+        Mode: Individual / Pair &nbsp;|&nbsp; Level: Beginner (no prior Wireshark experience assumed)
+    </div>
+</header>
+
+<h2>1. Learning Outcomes</h2>
+<div class="box">
+    By the end of this lab, students will be able to:
+    <ul>
+        <li>Capture live network traffic using Wireshark on a Kali Linux VM.</li>
+        <li>Identify and interpret Ethernet (Layer 2), IP (Layer 3), and TCP (Layer 4) header fields inside a captured packet.</li>
+        <li>Recognize and explain the TCP three-way handshake (SYN, SYN-ACK, ACK) in a capture.</li>
+        <li>Analyze DNS query/response traffic and HTTP request/response traffic.</li>
+        <li>Use "Follow TCP Stream" to reconstruct a full conversation between two hosts.</li>
+        <li>Write and apply Wireshark display filters to isolate traffic of interest.</li>
+    </ul>
+</div>
+
+<h2>2. Pre-Lab Setup</h2>
+<div class="box">
+    <ul class="checklist">
+        <li>☐ Kali Linux VM and a second VM (target/peer) both running and connected on the <strong>same Host-Only network</strong> (see Lab Sheet 03).</li>
+        <li>☐ Confirm both VMs can <code>ping</code> each other before starting.</li>
+        <li>☐ Wireshark is pre-installed on Kali. Verify with:
+            <pre>wireshark --version</pre>
+            If not installed:
+            <pre>sudo apt update && sudo apt install wireshark -y</pre>
+        </li>
+        <li>☐ Allow non-root capture (only needed once):
+            <pre>sudo usermod -aG wireshark $USER</pre>
+            Then log out and log back in for the group change to apply.
+        </li>
+    </ul>
+</div>
+
+<div class="warning">
+    <strong>⚠ Ethics Notice:</strong> Only capture traffic on the isolated Host-Only lab network between your own VMs. Never run Wireshark on university Wi-Fi, shared networks, or any network you do not have permission to monitor. Capturing other people's traffic without consent is illegal in most jurisdictions.
+</div>
+
+<h2>3. Background: What Wireshark Shows You</h2>
+<div class="box">
+    <p>Wireshark captures raw frames off a network interface and decodes them layer by layer. Each row in the packet list represents one frame, and expanding it in the packet details pane reveals a nested structure:</p>
+    <table>
+        <tr><th>Layer</th><th>Protocol Example</th><th>What to look for</th></tr>
+        <tr><td>Layer 2 – Data Link</td><td>Ethernet II</td><td>Source/Destination MAC address, EtherType</td></tr>
+        <tr><td>Layer 3 – Network</td><td>IP (IPv4)</td><td>Source/Destination IP, TTL, Protocol field, header checksum</td></tr>
+        <tr><td>Layer 4 – Transport</td><td>TCP / UDP</td><td>Source/Destination port, Sequence/ACK numbers, Flags, Window size</td></tr>
+        <tr><td>Layer 7 – Application</td><td>DNS, HTTP</td><td>Query names, HTTP methods, status codes, payload data</td></tr>
+    </table>
+</div>
+
+<h2>4. Lab Tasks</h2>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">1</span>Launch Wireshark and Start a Capture</div>
+    <ol>
+        <li>On Kali, open Wireshark: <strong>Applications → Sniffing &amp; Spoofing → Wireshark</strong>, or run in terminal:
+            <pre>sudo wireshark</pre>
+        </li>
+        <li>You will see a list of available interfaces (e.g. <code>eth0</code>, <code>eth1</code>). Select the interface connected to the <strong>Host-Only network</strong> (the one sharing a subnet with your second VM — check with <code>ip a</code> if unsure).</li>
+        <li>Double-click the interface, or select it and click the blue shark-fin <strong>Start</strong> button, to begin capturing.</li>
+        <li>You should now see packets streaming into the packet list pane in real time.</li>
+    </ol>
+    <div class="tip">
+        <strong>Tip:</strong> The Wireshark window has three panes: <strong>Packet List</strong> (top), <strong>Packet Details</strong> (middle, expandable tree), and <strong>Packet Bytes</strong> (bottom, raw hex/ASCII). Clicking a packet in the top pane updates the other two.
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">2</span>Generate Traffic to Capture</div>
+    <p>While the capture is running, generate some traffic from a terminal on Kali (or the second VM):</p>
+    <pre>ping -c 4 &lt;other-VM-IP&gt;
+curl http://example.com
+nslookup example.com</pre>
+    <p>Let it run for about 30 seconds, then click the red <strong>Stop</strong> button in Wireshark.</p>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">3</span>Examine an Ethernet (Layer 2) Header</div>
+    <ol>
+        <li>Click any packet in the list.</li>
+        <li>In the Packet Details pane, expand <strong>"Ethernet II"</strong>.</li>
+        <li>Identify and record the following fields:</li>
+    </ol>
+    <div class="box">
+        Source MAC: <span class="fill-box">&nbsp;</span> &nbsp;
+        Destination MAC: <span class="fill-box">&nbsp;</span> &nbsp;
+        Type field value (e.g. IPv4 = 0x0800): <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">4</span>Examine an IP (Layer 3) Header</div>
+    <p>On the same packet, expand <strong>"Internet Protocol Version 4"</strong>.</p>
+    <div class="box">
+        Source IP: <span class="fill-box">&nbsp;</span> &nbsp;
+        Destination IP: <span class="fill-box">&nbsp;</span><br>
+        Time to Live (TTL): <span class="fill-box">&nbsp;</span> &nbsp;
+        Protocol (e.g. TCP=6, UDP=17, ICMP=1): <span class="fill-box">&nbsp;</span> &nbsp;
+        Header Length: <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">5</span>Examine a TCP (Layer 4) Header</div>
+    <p>Filter to just TCP traffic (type into the filter bar at the top and press Enter):</p>
+    <pre>tcp</pre>
+    <p>Select a TCP packet and expand <strong>"Transmission Control Protocol"</strong>.</p>
+    <div class="box">
+        Source Port: <span class="fill-box">&nbsp;</span> &nbsp;
+        Destination Port: <span class="fill-box">&nbsp;</span><br>
+        Sequence Number: <span class="fill-box">&nbsp;</span> &nbsp;
+        Acknowledgment Number: <span class="fill-box">&nbsp;</span><br>
+        Flags set (e.g. SYN, ACK, FIN, PSH): <span class="fill-box">&nbsp;</span> &nbsp;
+        Window Size: <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">6</span>Identify the TCP Three-Way Handshake</div>
+    <ol>
+        <li>Clear the current capture (<strong>Ctrl+E</strong> to stop if running, then the "x" icon to clear, or just start a fresh capture).</li>
+        <li>Start capturing again, then from a terminal initiate a fresh connection, e.g.:
+            <pre>curl http://example.com</pre>
+        </li>
+        <li>Stop the capture and apply this filter to isolate the handshake for that connection:
+            <pre>tcp.port == 80</pre>
+        </li>
+        <li>Locate the first three packets of a new connection. They should show, in order:</li>
+    </ol>
+    <table>
+        <tr><th>Step</th><th>Direction</th><th>Flags</th><th>Meaning</th></tr>
+        <tr><td>1</td><td>Client → Server</td><td>SYN</td><td>Client requests to open a connection</td></tr>
+        <tr><td>2</td><td>Server → Client</td><td>SYN, ACK</td><td>Server acknowledges and agrees to connect</td></tr>
+        <tr><td>3</td><td>Client → Server</td><td>ACK</td><td>Client confirms; connection established</td></tr>
+    </table>
+    <div class="box">
+        <strong>Record the three handshake packets you found:</strong><br>
+        Packet #<span class="fill-box">&nbsp;</span> — SYN &nbsp;|&nbsp;
+        Packet #<span class="fill-box">&nbsp;</span> — SYN,ACK &nbsp;|&nbsp;
+        Packet #<span class="fill-box">&nbsp;</span> — ACK
+    </div>
+    <div class="tip">
+        <strong>Tip:</strong> You can also find the closing sequence (FIN/ACK exchange, sometimes a 4-way teardown) later in the same stream — note its packet numbers too if visible.
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">7</span>Analyze DNS Traffic</div>
+    <ol>
+        <li>Apply the filter:
+            <pre>dns</pre>
+        </li>
+        <li>If you don't see any DNS packets, generate some:
+            <pre>nslookup github.com
+dig google.com</pre>
+        </li>
+        <li>Click a <strong>DNS Query</strong> packet (Info column shows "Standard query"). Expand <strong>"Domain Name System (query)"</strong> and note the fields.</li>
+        <li>Click the matching <strong>DNS Response</strong> packet (Info column shows "Standard query response"). Expand it to see the resolved IP address(es).</li>
+    </ol>
+    <div class="box">
+        Domain queried: <span class="fill-box">&nbsp;</span> &nbsp;
+        Query Type (A/AAAA/MX etc.): <span class="fill-box">&nbsp;</span><br>
+        Resolved IP address(es) in the response: <span class="fill-box">&nbsp;</span> &nbsp;
+        Transaction ID: <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">8</span>Analyze HTTP Traffic</div>
+    <ol>
+        <li>Apply the filter:
+            <pre>http</pre>
+        </li>
+        <li>If empty, generate HTTP traffic (not HTTPS, since that is encrypted):
+            <pre>curl http://neverssl.com</pre>
+        </li>
+        <li>Find an <strong>HTTP Request</strong> packet (Info column shows "GET /...") and expand <strong>"Hypertext Transfer Protocol"</strong>. Note the request method, host, and user-agent.</li>
+        <li>Find the matching <strong>HTTP Response</strong> and note the status code (e.g. 200 OK, 404 Not Found) and content type.</li>
+    </ol>
+    <div class="box">
+        Request Method: <span class="fill-box">&nbsp;</span> &nbsp;
+        Host header: <span class="fill-box">&nbsp;</span><br>
+        Response Status Code: <span class="fill-box">&nbsp;</span> &nbsp;
+        Content-Type: <span class="fill-box">&nbsp;</span>
+    </div>
+    <div class="tip">
+        <strong>Note:</strong> Most modern websites use HTTPS (TLS-encrypted), so you will only see the TLS handshake, not readable HTTP content, for those. Use plain <code>http://</code> sites like <code>neverssl.com</code> or <code>example.com</code> for this exercise.
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">9</span>Follow a TCP Stream</div>
+    <ol>
+        <li>Right-click any packet that is part of an HTTP conversation.</li>
+        <li>Select <strong>Follow → TCP Stream</strong> from the context menu.</li>
+        <li>A new window opens showing the full reconstructed conversation: client requests in one color (typically red), server responses in another (typically blue).</li>
+        <li>Read through the reconstructed HTTP request/response. Close the window when done — notice that Wireshark automatically applies a filter like <code>tcp.stream eq X</code> to the main window.</li>
+    </ol>
+    <div class="box">
+        What did you observe in the reconstructed stream (e.g. headers, HTML content)? Briefly describe.
+    </div>
+    <div class="answer-area">Write your observation here...</div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">10</span>Apply Wireshark Display Filters</div>
+    <p>Type each filter below into the filter bar (top of window) and press Enter. Record how many packets match and briefly describe what you see.</p>
+    <table class="filter-table">
+        <tr><th>Filter</th><th>Purpose</th><th># Packets Matched</th></tr>
+        <tr><td><code>ip.addr == &lt;target-IP&gt;</code></td><td>All traffic to/from a specific host</td><td>&nbsp;</td></tr>
+        <tr><td><code>ip.src == &lt;IP&gt;</code></td><td>Traffic originating from a specific host</td><td>&nbsp;</td></tr>
+        <tr><td><code>tcp.port == 80</code></td><td>All traffic on port 80 (HTTP)</td><td>&nbsp;</td></tr>
+        <tr><td><code>tcp.flags.syn == 1 &amp;&amp; tcp.flags.ack == 0</code></td><td>Only SYN packets (connection attempts)</td><td>&nbsp;</td></tr>
+        <tr><td><code>icmp</code></td><td>Only ICMP (ping) traffic</td><td>&nbsp;</td></tr>
+        <tr><td><code>dns</code></td><td>Only DNS traffic</td><td>&nbsp;</td></tr>
+        <tr><td><code>http.request</code></td><td>Only HTTP request packets</td><td>&nbsp;</td></tr>
+        <tr><td><code>http.response.code == 200</code></td><td>Only successful HTTP responses</td><td>&nbsp;</td></tr>
+        <tr><td><code>tcp.analysis.retransmission</code></td><td>Retransmitted TCP packets (possible network issues)</td><td>&nbsp;</td></tr>
+    </table>
+    <div class="tip">
+        <strong>Tip:</strong> Display filters (typed in the top bar) narrow what you <em>see</em> without discarding captured data. Capture filters (set before starting a capture, e.g. <code>host 192.168.56.102</code>) narrow what is <em>recorded</em> in the first place. This lab only uses display filters.
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">11</span>Save Your Capture</div>
+    <ol>
+        <li>Go to <strong>File → Save As</strong>.</li>
+        <li>Save the capture as a <code>.pcapng</code> file named: <code>StudentID_Lab04_capture.pcapng</code></li>
+        <li>This file will be part of your submission.</li>
+    </ol>
+</div>
+
+<h2>5. Quick Reference: Common Wireshark Filters</h2>
+<div class="box">
+    <table class="filter-table">
+        <tr><th>Goal</th><th>Filter</th></tr>
+        <tr><td>Show only traffic with one IP</td><td><code>ip.addr == 192.168.56.102</code></td></tr>
+        <tr><td>Show only TCP traffic</td><td><code>tcp</code></td></tr>
+        <tr><td>Show only UDP traffic</td><td><code>udp</code></td></tr>
+        <tr><td>Show traffic on a specific port</td><td><code>tcp.port == 443</code></td></tr>
+        <tr><td>Exclude a protocol (e.g. hide ARP noise)</td><td><code>!arp</code></td></tr>
+        <tr><td>Combine conditions (AND)</td><td><code>ip.addr == 192.168.56.102 &amp;&amp; tcp.port == 22</code></td></tr>
+        <tr><td>Combine conditions (OR)</td><td><code>dns || http</code></td></tr>
+        <tr><td>Search for text inside packet</td><td><code>frame contains "password"</code></td></tr>
+    </table>
+</div>
+
+<h2>6. Post-Lab Questions</h2>
+<div class="box">
+    <ol>
+        <li>Why does the TCP three-way handshake need three steps rather than just one?</li>
+        <li>What information in the IP header would you check to determine roughly how many network hops a packet has passed through?</li>
+        <li>Explain the difference between a Wireshark <strong>capture filter</strong> and a <strong>display filter</strong>.</li>
+        <li>Why is it not possible to read the contents of HTTPS traffic directly in Wireshark the way we did with HTTP?</li>
+        <li>Why is DNS traffic normally sent over UDP rather than TCP? Under what circumstance might DNS switch to TCP?</li>
+        <li>From a security perspective, why is capturing and reading plaintext HTTP traffic considered a risk?</li>
+    </ol>
+    <div class="answer-area" style="min-height:150px;">Write your answers here...</div>
+</div>
+
+<h2>7. Submission Checklist</h2>
+<div class="box">
+    <ul class="checklist">
+        <li>☐ Your saved <code>.pcapng</code> capture file.</li>
+        <li>☐ Screenshots of the Ethernet, IP, and TCP header expansions (Tasks 3–5).</li>
+        <li>☐ Screenshot showing the three-way handshake packets (Task 6).</li>
+        <li>☐ Screenshots of DNS query/response and HTTP request/response (Tasks 7–8).</li>
+        <li>☐ Screenshot of a "Follow TCP Stream" window (Task 9).</li>
+        <li>☐ Completed filter table (Task 10).</li>
+        <li>☐ Answers to all Post-Lab Questions (Section 6).</li>
+        <li>☐ Submit as a single PDF + the .pcapng file, named: <code>StudentID_SE5101_Lab04.pdf</code> and <code>StudentID_Lab04_capture.pcapng</code></li>
+    </ul>
+</div>
+
+<footer>
+    SE5101 – Computer and Network Security &nbsp;|&nbsp; Lab Sheet 04 of the module series &nbsp;|&nbsp; For educational use within an isolated lab environment only.
+</footer>
+
+</body>
+</html>
