@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SE5101 - Lab Sheet 03: Security Lab & Network Fundamentals</title>
+<style>
+    :root {
+        --navy: #1b2a4a;
+        --blue: #2c5aa0;
+        --light-blue: #eaf1fb;
+        --accent: #d9534f;
+        --gray: #555;
+        --border: #d7e0ec;
+    }
+    * { box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #222;
+        line-height: 1.6;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 25px 80px;
+        background: #fbfcfe;
+    }
+    header {
+        border-bottom: 4px solid var(--blue);
+        padding-bottom: 15px;
+        margin-bottom: 25px;
+    }
+    header h1 {
+        color: var(--navy);
+        margin: 0 0 5px;
+        font-size: 1.7em;
+    }
+    header .module {
+        color: var(--blue);
+        font-weight: 600;
+        font-size: 1.1em;
+    }
+    header .meta {
+        color: var(--gray);
+        font-size: 0.95em;
+        margin-top: 8px;
+    }
+    h2 {
+        color: var(--navy);
+        border-left: 5px solid var(--blue);
+        padding: 6px 12px;
+        background: var(--light-blue);
+        margin-top: 40px;
+        font-size: 1.25em;
+    }
+    h3 {
+        color: var(--blue);
+        margin-top: 25px;
+        font-size: 1.05em;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 4px;
+    }
+    .box {
+        background: var(--light-blue);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 15px 20px;
+        margin: 15px 0;
+    }
+    .warning {
+        background: #fff4e5;
+        border-left: 5px solid #e0a015;
+        padding: 12px 18px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    .task {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--blue);
+        border-radius: 4px;
+        padding: 15px 20px;
+        margin: 18px 0;
+    }
+    .task-title {
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 8px;
+        font-size: 1.05em;
+    }
+    code, pre {
+        font-family: 'Consolas', 'Courier New', monospace;
+        background: #1e1e2e;
+        color: #d4d4f4;
+        border-radius: 4px;
+    }
+    code {
+        padding: 2px 6px;
+        font-size: 0.92em;
+    }
+    pre {
+        padding: 12px 16px;
+        overflow-x: auto;
+        margin: 10px 0;
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.95em;
+    }
+    th, td {
+        border: 1px solid var(--border);
+        padding: 8px 12px;
+        text-align: left;
+    }
+    th {
+        background: var(--blue);
+        color: white;
+    }
+    tr:nth-child(even) { background: var(--light-blue); }
+    .fill-box {
+        display: inline-block;
+        min-width: 180px;
+        border-bottom: 1px dashed var(--gray);
+        margin: 4px 6px;
+    }
+    .answer-area {
+        border: 1px dashed #aaa;
+        background: #fff;
+        min-height: 60px;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 8px 0;
+        color: #999;
+        font-style: italic;
+    }
+    .checklist li {
+        margin-bottom: 6px;
+    }
+    .badge {
+        display: inline-block;
+        background: var(--blue);
+        color: white;
+        border-radius: 12px;
+        padding: 2px 12px;
+        font-size: 0.8em;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    .objectives ul, .outcomes ul { margin: 8px 0; }
+    footer {
+        margin-top: 50px;
+        border-top: 2px solid var(--border);
+        padding-top: 15px;
+        color: var(--gray);
+        font-size: 0.85em;
+        text-align: center;
+    }
+    .step-num {
+        display: inline-block;
+        background: var(--navy);
+        color: white;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 22px;
+        font-size: 0.8em;
+        margin-right: 8px;
+    }
+    @media print {
+        body { max-width: 100%; }
+        h2 { break-before: page; }
+        header + h2 { break-before: avoid; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <div class="module">SE5101 – Computer and Network Security</div>
+    <h1>Lab Sheet 03: Security Lab &amp; Network Fundamentals</h1>
+    <div class="meta">
+        Duration: 2–3 hours &nbsp;|&nbsp; Environment: VirtualBox / VMware with Kali Linux + Target VM(s) &nbsp;|&nbsp;
+        Mode: Individual / Pair
+    </div>
+</header>
+
+<h2>1. Learning Outcomes</h2>
+<div class="objectives box">
+    By the end of this lab, students will be able to:
+    <ul>
+        <li>Set up and configure a Kali Linux attacker VM and a target VM in a virtualized lab environment.</li>
+        <li>Explain the difference between NAT and Host-Only networking modes and configure both.</li>
+        <li>Assign, verify, and troubleshoot static and dynamic IP configurations on Linux hosts.</li>
+        <li>Use core networking commands (<code>ping</code>, <code>ip</code>, <code>ss</code>, <code>netstat</code>) to inspect connectivity, interfaces, and active connections.</li>
+        <li>Identify open ports and running network services on a host and relate them to potential attack surfaces.</li>
+    </ul>
+</div>
+
+<h2>2. Pre-Lab Requirements</h2>
+<div class="box">
+    <ul class="checklist">
+        <li>☐ A hypervisor installed: <strong>VirtualBox</strong> (recommended) or VMware Workstation/Player.</li>
+        <li>☐ <strong>Kali Linux</strong> VM image (OVA or ISO) downloaded from <code>kali.org</code>.</li>
+        <li>☐ A <strong>target VM</strong> — e.g. Metasploitable2, or any lightweight Ubuntu/Debian Server VM assigned by your instructor.</li>
+        <li>☐ At least <strong>4 GB RAM</strong> free and <strong>25 GB disk space</strong> for both VMs combined.</li>
+        <li>☐ Completed reading: lecture notes on OSI/TCP-IP layers and virtual networking modes.</li>
+    </ul>
+</div>
+
+<div class="warning">
+    <strong>⚠ Safety &amp; Ethics Notice:</strong> All scanning, probing, and connection activity in this lab must be performed <strong>only</strong> against the VMs you create in this exercise, on an isolated Host-Only or internal network. Never point these tools at university networks, public IP addresses, or any system you do not own or have explicit written permission to test. Unauthorized scanning is a violation of the university's Acceptable Use Policy and may be a criminal offence under the Computer Crimes Act.
+</div>
+
+<h2>3. Background Reading</h2>
+<div class="box">
+    <p><strong>NAT (Network Address Translation) mode:</strong> The VM shares the host's IP address to reach external networks (e.g. the internet). The host acts as a router and performs address translation. VMs on NAT typically cannot be reached directly from the host or from other VMs unless port forwarding is configured.</p>
+    <p><strong>Host-Only networking:</strong> Creates a private virtual network shared only between the host machine and the VMs attached to it. There is no route to the external internet. This is the safest mode for practising attacks between an attacker VM and a target VM, since traffic never leaves the host.</p>
+    <p><strong>Why this matters for security labs:</strong> Isolating the attacker and target on a Host-Only network guarantees that scanning/exploitation traffic cannot accidentally reach real-world systems.</p>
+</div>
+
+<h2>4. Lab Tasks</h2>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">1</span>Import and Boot the VMs</div>
+    <ol>
+        <li>Open your hypervisor and import the Kali Linux VM (File → Import Appliance, if using an OVA).</li>
+        <li>Import or create the target VM (e.g. Metasploitable2) in the same hypervisor.</li>
+        <li>Allocate at least 2 GB RAM and 2 CPU cores to the Kali VM; 512 MB–1 GB RAM is sufficient for the target VM.</li>
+        <li>Start both VMs and log in:
+            <ul>
+                <li>Kali Linux default credentials: <code>kali / kali</code> (verify with your image documentation).</li>
+                <li>Metasploitable2 default credentials: <code>msfadmin / msfadmin</code>.</li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">2</span>Configure Host-Only Networking</div>
+    <ol>
+        <li>In VirtualBox: go to <strong>File → Host Network Manager</strong> and create a Host-Only adapter (e.g. <code>vboxnet0</code>) if one does not already exist. Note its subnet (e.g. <code>192.168.56.0/24</code>).</li>
+        <li>For <strong>both</strong> the Kali VM and the target VM: open <strong>Settings → Network</strong>, and set <strong>Adapter 1</strong> to <em>Host-Only Adapter</em>, selecting the adapter created above.</li>
+        <li>Restart both VMs so the new network setting takes effect.</li>
+    </ol>
+    <div class="box">
+        <strong>Record your configuration:</strong><br>
+        Host-Only adapter name: <span class="fill-box">&nbsp;</span> &nbsp;
+        Subnet/CIDR: <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">3</span>Add a Second Adapter for NAT (Internet Access)</div>
+    <ol>
+        <li>On the Kali VM only, go to <strong>Settings → Network → Adapter 2</strong>, enable it, and set it to <em>NAT</em>. This gives Kali internet access for updates while Adapter 1 (Host-Only) is used to talk to the target.</li>
+        <li>Boot Kali and confirm you now have two interfaces (one for NAT, one for Host-Only) using the command in Task 4.</li>
+    </ol>
+    <div class="box">
+        <strong>Why two adapters?</strong> Separating NAT (internet/updates) from Host-Only (isolated lab traffic) mirrors real penetration-testing setups where the attack traffic is kept off the general network.
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">4</span>Inspect and Configure IP Addressing</div>
+    <p>On the <strong>Kali VM</strong>, open a terminal and run:</p>
+    <pre>ip addr show
+# or shorthand
+ip a</pre>
+    <p>Identify the interface connected to the Host-Only network (commonly <code>eth1</code> or <code>enp0s8</code>) and note its IP address.</p>
+    <p>If the interface has no IP address (no DHCP on Host-Only), assign one manually:</p>
+    <pre>sudo ip addr add 192.168.56.101/24 dev eth1
+sudo ip link set eth1 up</pre>
+    <p>Repeat on the <strong>target VM</strong> to confirm/assign an IP in the same subnet, e.g. <code>192.168.56.102/24</code>.</p>
+    <p>Verify routing table and default gateway:</p>
+    <pre>ip route show</pre>
+    <div class="box">
+        <strong>Record your addressing:</strong><br>
+        Kali Host-Only IP: <span class="fill-box">&nbsp;</span> &nbsp;
+        Target VM IP: <span class="fill-box">&nbsp;</span><br>
+        Kali NAT IP: <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">5</span>Test Connectivity with <code>ping</code></div>
+    <p>From Kali, ping the target VM by IP:</p>
+    <pre>ping -c 4 192.168.56.102</pre>
+    <p>Observe the output: packets transmitted/received, packet loss %, and round-trip time (min/avg/max/mdev).</p>
+    <p>From the target VM, ping Kali back to confirm bidirectional connectivity.</p>
+    <div class="box">
+        <strong>Record results:</strong><br>
+        Packets sent/received: <span class="fill-box">&nbsp;</span> &nbsp;
+        Packet loss: <span class="fill-box">&nbsp;</span> &nbsp;
+        Avg RTT (ms): <span class="fill-box">&nbsp;</span>
+    </div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">6</span>Explore Active Connections and Listening Ports with <code>ss</code></div>
+    <p>On the <strong>target VM</strong>, list all listening TCP/UDP ports with process info:</p>
+    <pre>sudo ss -tulnp</pre>
+    <table>
+        <tr><th>Flag</th><th>Meaning</th></tr>
+        <tr><td><code>-t</code></td><td>Show TCP sockets</td></tr>
+        <tr><td><code>-u</code></td><td>Show UDP sockets</td></tr>
+        <tr><td><code>-l</code></td><td>Show only listening sockets</td></tr>
+        <tr><td><code>-n</code></td><td>Show numeric addresses/ports (no DNS lookup)</td></tr>
+        <tr><td><code>-p</code></td><td>Show the process using each socket (requires sudo)</td></tr>
+    </table>
+    <p>Fill in the table below with at least 5 services you observe:</p>
+    <table>
+        <tr><th>Port</th><th>Protocol</th><th>Process/Service</th><th>Likely Purpose</th></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+    </table>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">7</span>Cross-Check with <code>netstat</code></div>
+    <p><code>netstat</code> is the legacy tool that <code>ss</code> replaces, but it is still widely used. Install it if missing:</p>
+    <pre>sudo apt install net-tools -y</pre>
+    <p>Run the equivalent listening-ports check:</p>
+    <pre>sudo netstat -tulnp</pre>
+    <p>Also view the routing table and interface statistics:</p>
+    <pre>netstat -r
+netstat -i</pre>
+    <div class="box">
+        Compare the output of <code>ss -tulnp</code> and <code>netstat -tulnp</code>. Are the results consistent? Note any differences below.
+    </div>
+    <div class="answer-area">Write your observation here...</div>
+</div>
+
+<div class="task">
+    <div class="task-title"><span class="step-num">8</span>Basic Port &amp; Service Reconnaissance</div>
+    <p>From Kali, check whether a specific port on the target is reachable using <code>ping</code> (ICMP only, not port-specific) and a simple TCP connection test:</p>
+    <pre>ping -c 2 192.168.56.102
+nc -zv 192.168.56.102 21-25
+nc -zv 192.168.56.102 80</pre>
+    <p><code>nc -zv</code> (netcat) attempts a zero-I/O connection to each port in the given range and reports open/closed — this gives you a first taste of port scanning, which will be covered formally with <code>nmap</code> in the next lab.</p>
+    <div class="box">
+        <strong>Record:</strong> Which ports responded as open on the target?
+    </div>
+    <div class="answer-area">List open ports found...</div>
+</div>
+
+<h2>5. Post-Lab Questions</h2>
+<div class="box">
+    <ol>
+        <li>Explain in your own words why Host-Only networking is preferred over Bridged networking for this type of lab.</li>
+        <li>What is the difference in scope between the <code>-l</code> and <code>-a</code> flags in <code>ss</code>/<code>netstat</code>?</li>
+        <li>If <code>ping</code> to the target fails but <code>ss</code> on the target shows services listening, list three possible causes.</li>
+        <li>Why might a system administrator want to minimize the number of open/listening ports on a server?</li>
+        <li>Name two risks of leaving an NAT adapter enabled on an attacker VM during a lab exercise.</li>
+    </ol>
+    <div class="answer-area" style="min-height:150px;">Write your answers here...</div>
+</div>
+
+<h2>6. Submission Checklist</h2>
+<div class="box">
+    <ul class="checklist">
+        <li>☐ Screenshot of Host-Only Network Manager configuration.</li>
+        <li>☐ Screenshot of <code>ip a</code> output on both Kali and target VM.</li>
+        <li>☐ Screenshot of successful <code>ping</code> results (both directions).</li>
+        <li>☐ Screenshot of <code>ss -tulnp</code> and <code>netstat -tulnp</code> output on the target VM.</li>
+        <li>☐ Completed port/service table (Task 6).</li>
+        <li>☐ Answers to all Post-Lab Questions (Section 5).</li>
+        <li>☐ Submit as a single PDF named: <code>StudentID_SE5101_Lab03.pdf</code></li>
+    </ul>
+</div>
+
+<footer>
+    SE5101 – Computer and Network Security &nbsp;|&nbsp; Lab Sheet 03 of the module series &nbsp;|&nbsp; For educational use within an isolated lab environment only.
+</footer>
+
+</body>
+</html>
