@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Sheet · Network Hardware & Topology Identification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0A1929;
+    --navy-light:#12263F;
+    --navy-line: rgba(94,234,212,0.18);
+    --paper:#EEF2F6;
+    --paper-line: rgba(10,25,41,0.07);
+    --ink:#0A1929;
+    --muted:#5B7083;
+    --muted-light: rgba(238,242,246,0.65);
+    --cyan:#5EEAD4;
+    --amber:#FBBF24;
+    --rose:#FB7185;
+    --display: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --body: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--paper);
+    line-height:1.55;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display:flex;
+    align-items:center;
+    gap:0.6em;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px; height:1px;
+    background: currentColor;
+    display:inline-block;
+  }
+  h1,h2,h3{ font-family: var(--display); font-weight:600; letter-spacing:-0.01em;}
+  section{
+    padding: 5.5rem 8vw;
+    position:relative;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  section.dark{
+    background: var(--navy);
+    color: var(--muted-light);
+  }
+  section.dark h1, section.dark h2, section.dark h3{ color:#fff; }
+  section.dark .eyebrow{ color: var(--cyan); }
+  section:not(.dark) .eyebrow{ color:#B4472C; }
+  .grid-bg{
+    background-image:
+      linear-gradient(var(--navy-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--navy-line) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+  .grid-bg.light{
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+  }
+
+  /* ---------- COVER ---------- */
+  .cover{
+    min-height: 92vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:2rem;
+  }
+  .cover .kicker{ color: var(--cyan); }
+  .cover h1{
+    font-size: clamp(2.4rem, 6vw, 4.6rem);
+    line-height:1.02;
+    max-width: 16ch;
+  }
+  .cover h1 span{ color: var(--amber); }
+  .cover p.lede{
+    max-width: 56ch;
+    font-size: 1.05rem;
+    color: var(--muted-light);
+  }
+  .cover-meta{
+    display:flex;
+    gap:2.5rem;
+    flex-wrap:wrap;
+    margin-top:1.5rem;
+    font-family: var(--mono);
+    font-size:0.82rem;
+  }
+  .cover-meta div span{ display:block; color: var(--cyan); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:0.3em;}
+  .objectives{
+    margin-top: 2.2rem;
+    border-left: 2px solid var(--cyan);
+    padding-left: 1.4rem;
+    display:grid;
+    gap:0.5rem;
+    max-width: 60ch;
+  }
+  .objectives li{ list-style:none; font-size:0.95rem; color:var(--muted-light);}
+  .objectives li::before{ content:"→ "; color:var(--cyan); font-family:var(--mono); }
+
+  /* ---------- SECTION HEADERS ---------- */
+  .sec-head{ margin-bottom: 2.6rem; max-width: 70ch; }
+  .sec-head h2{ font-size: clamp(1.6rem, 3.4vw, 2.4rem); margin-top:0.5rem; }
+  .sec-head p{ margin-top:0.7rem; color:var(--muted); }
+  section.dark .sec-head p{ color: var(--muted-light); }
+
+  /* ---------- DEVICE CARDS ---------- */
+  .device-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    gap: 1.2rem;
+  }
+  .device-card{
+    background: var(--navy-light);
+    border:1px solid var(--navy-line);
+    border-radius: 6px;
+    padding: 1.3rem 1.4rem 1.5rem;
+    position:relative;
+    overflow:hidden;
+  }
+  .device-card .dcard-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:0.6rem;}
+  .device-card h3{ font-size:1.02rem; color:#fff;}
+  .device-card .layer-tag{
+    font-family: var(--mono); font-size:0.6rem; white-space:nowrap;
+    background: rgba(94,234,212,0.1); color: var(--cyan);
+    border:1px solid rgba(94,234,212,0.35);
+    padding: 0.22em 0.5em; border-radius:20px; letter-spacing:0.05em;
+  }
+  .device-card svg{ width:100%; height:130px; margin: 0.7rem 0; }
+  .device-card p{ font-size:0.84rem; color:var(--muted-light); margin-bottom:0.5rem;}
+  .device-card .tag{
+    display:inline-block; font-family:var(--mono); font-size:0.65rem;
+    color:var(--amber); border:1px solid rgba(251,191,36,0.35); padding:0.2em 0.55em; border-radius:20px;
+  }
+  .wave{ stroke:var(--cyan); fill:none; stroke-width:2; stroke-dasharray:6 4; }
+  .wave-alt{ stroke:var(--amber); fill:none; stroke-width:2; stroke-dasharray:6 4; }
+  .devbox{ fill:none; stroke:var(--cyan); stroke-width:1.6; }
+  .devbox-amber{ fill:none; stroke:var(--amber); stroke-width:1.6; }
+  .wall{ fill:none; stroke:var(--rose); stroke-width:3; }
+  .ripple{ fill:none; stroke:var(--cyan); stroke-width:1.4; }
+  .blocked{ fill:var(--rose); }
+  .dim-link{ stroke: rgba(255,255,255,0.12); stroke-width:1.5; }
+  .devlabel{ font-family:var(--mono); font-size:7px; fill:var(--muted-light); letter-spacing:0.05em; }
+
+  /* ---------- TOPOLOGY ---------- */
+  .topo-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+    gap:1.6rem;
+  }
+  .topo-card{
+    background: var(--navy-light);
+    border:1px solid var(--navy-line);
+    border-radius:6px;
+    padding: 1.4rem 1.4rem 1.6rem;
+  }
+  .topo-card h3{ font-size:1rem; color:#fff; margin-bottom:0.2rem;}
+  .topo-card .sub{ font-family:var(--mono); font-size:0.68rem; color:var(--cyan); text-transform:uppercase; letter-spacing:0.08em;}
+  .topo-card svg{ width:100%; height:150px; margin:0.9rem 0; }
+  .topo-card p{ font-size:0.82rem; color:var(--muted-light); }
+  .pill-row{ display:flex; gap:0.5rem; margin-top:0.7rem; flex-wrap:wrap; }
+  .pill{ font-family:var(--mono); font-size:0.64rem; padding:0.2em 0.55em; border-radius:20px; }
+  .pill.pro{ background: rgba(94,234,212,0.12); color: var(--cyan); border:1px solid rgba(94,234,212,0.35);}
+  .pill.con{ background: rgba(251,113,133,0.1); color: var(--rose); border:1px solid rgba(251,113,133,0.35);}
+
+  .node{ fill: var(--cyan); }
+  .node-alt{ fill: var(--amber); }
+  .link{ stroke: rgba(255,255,255,0.28); stroke-width:1.5; }
+  .packet{ fill: var(--amber); }
+
+  /* ---------- COMPARISON TABLE ---------- */
+  table.cmp{
+    width:100%; border-collapse:collapse; margin-top:1rem; font-size:0.88rem;
+    background:#fff;
+  }
+  table.cmp th, table.cmp td{
+    text-align:left; padding:0.75em 1em; border-bottom:1px solid var(--paper-line);
+  }
+  table.cmp th{
+    font-family:var(--mono); font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase;
+    color: var(--muted); background: #E4E9EF;
+  }
+  table.cmp tr:last-child td{ border-bottom:none; }
+
+  /* ---------- LAB ACTIVITY ---------- */
+  .lab-steps {
+  counter-reset: step;
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.lab-steps li {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid var(--paper-line);
+  border-radius: 4px;
+  padding: 1rem 1.2rem;
+  min-width: 0;
+}
+
+.lab-steps li::before {
+  counter-increment: step;
+  content: counter(step, decimal-leading-zero);
+  font-family: var(--mono);
+  color: #B4472C;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.lab-steps strong {
+  color: var(--muted);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.lab-steps span {
+  color: var(--muted);
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+  .worksheet{
+    margin-top:2rem; border:1px dashed #B4472C55; border-radius:6px; padding:1.5rem; background:#fff;
+  }
+  .worksheet h4{ font-family:var(--mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.08em; color:#B4472C; margin-bottom:0.3rem;}
+  .worksheet .hint{ font-size:0.8rem; color:var(--muted); margin-bottom:1.1rem; }
+  .ws-row{ display:grid; grid-template-columns: 1.4fr 1fr 1.8fr; gap:0.9rem; padding:0.55rem 0; border-bottom:1px solid var(--paper-line); font-size:0.85rem; align-items:center;}
+  .ws-row.head{ font-family:var(--mono); font-size:0.64rem; text-transform:uppercase; color:var(--muted); letter-spacing:0.06em; border-bottom:2px solid var(--ink); padding-bottom:0.5rem;}
+  .ws-row.section-title{ grid-template-columns:1fr; margin-top:1.5rem; padding-top:0.3rem; border-bottom:2px solid var(--ink); font-family:var(--mono); font-size:0.64rem; text-transform:uppercase; color:var(--muted); letter-spacing:0.06em;}
+  .ws-input{
+    font-family: var(--body); font-size:0.85rem; color:var(--ink);
+    border:none; border-bottom:1px solid #C7D0DA; background:transparent;
+    padding:0.3em 0.1em; width:100%; outline:none;
+  }
+  .ws-input:focus{ border-bottom:1px solid #B4472C; }
+  .ws-input::placeholder{ color:#AEB9C4; }
+  @media (max-width:640px){
+    .ws-row{ grid-template-columns:1fr; gap:0.35rem; padding-bottom:1rem;}
+    .ws-row.head{ display:none; }
+    .ws-input{ border:1px solid #C7D0DA; border-radius:4px; padding:0.5em 0.6em; }
+  }
+
+  /* ---------- RESOURCES ---------- */
+  .res-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap:1.2rem;
+  }
+  .res-card{
+    border:1px solid var(--navy-line);
+    background: var(--navy-light);
+    border-radius:6px;
+    padding:1.3rem 1.4rem;
+    display:flex; flex-direction:column; gap:0.6rem;
+  }
+  .res-card .plat{ font-family:var(--mono); font-size:0.64rem; color:var(--amber); text-transform:uppercase; letter-spacing:0.1em;}
+  .res-card h3{ color:#fff; font-size:1.05rem;}
+  .res-card p{ font-size:0.85rem; color:var(--muted-light);}
+  .res-card a{
+    margin-top:auto; font-family:var(--mono); font-size:0.78rem; color:var(--cyan); text-decoration:none;
+    border-top:1px solid var(--navy-line); padding-top:0.6rem;
+  }
+  .res-card a:hover{ text-decoration:underline; }
+  .book-list{ margin-top:2.4rem; display:grid; gap:0.5rem; max-width:70ch;}
+  .book-list li{ list-style:none; font-size:0.88rem; color:var(--muted-light); display:flex; gap:0.6em;}
+  .book-list li::before{ content:"·"; color:var(--cyan); font-weight:700;}
+
+  /* ---------- FINAL / SECURITY+ ---------- */
+  .final{
+    min-height: 88vh; display:flex; flex-direction:column; justify-content:center; gap:2rem;
+    background: linear-gradient(180deg, var(--navy) 0%, #081422 100%);
+  }
+  .final .badge{
+    display:inline-flex; align-items:center; gap:0.6em;
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase;
+    color: var(--navy); background: var(--amber); padding:0.4em 0.9em; border-radius:3px; width:fit-content;
+  }
+  .final h2{ font-size: clamp(2rem, 5vw, 3.4rem); max-width:20ch; color:#fff;}
+  .final p.lede{ max-width:62ch; color:var(--muted-light); font-size:1.02rem;}
+  .domain-grid{
+    display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:1rem;
+  }
+  .domain-card{
+    border:1px solid var(--navy-line); border-radius:6px; padding:1rem 1.2rem; background: rgba(255,255,255,0.02);
+  }
+  .domain-card .num{ font-family:var(--mono); color:var(--cyan); font-size:0.75rem;}
+  .domain-card h4{ color:#fff; font-family:var(--display); font-size:0.98rem; margin:0.3rem 0 0.3rem;}
+  .domain-card p{ font-size:0.8rem; color:var(--muted-light);}
+  .cta-row{ display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.5rem; font-family:var(--mono); font-size:0.82rem;}
+  .cta-row .stat{ color:var(--muted-light); }
+  .cta-row .stat b{ color:var(--cyan); display:block; font-size:1.3rem; font-family:var(--display);}
+
+  footer{
+    padding:2rem 8vw; background: var(--navy); color: var(--muted-light);
+    font-family:var(--mono); font-size:0.72rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem;
+  }
+
+  @media print{
+    section{ page-break-after: always; }
+    .cover, .final{ min-height:auto; }
+  }
+  @media (max-width:640px){
+    section{ padding: 3.5rem 6vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<section class="cover dark grid-bg">
+  <div class="eyebrow kicker">Lab Sheet · Networking Fundamentals · Unit 02</div>
+  <h1>Network Hardware &amp; <span>Topology</span> Identification</h1>
+  <p class="lede">A hands-on reference and worksheet for recognizing common networking devices, understanding the OSI layers they operate at, and identifying the physical/logical topologies used to connect them.</p>
+
+  <ul class="objectives">
+    <li>Identify core networking devices and state their function and OSI layer</li>
+    <li>Distinguish between physical and logical topology</li>
+    <li>Compare bus, star, ring, mesh, tree, and hybrid topologies</li>
+    <li>Complete a device/topology identification worksheet</li>
+    <li>Know where to keep learning after this lab</li>
+  </ul>
+
+  <div class="cover-meta">
+    <div><span>Duration</span>60–90 minutes</div>
+    <div><span>Level</span>Beginner → Intermediate</div>
+    <div><span>Prerequisite</span>Basic OSI model awareness</div>
+    <div><span>Leads into</span>CompTIA Security+</div>
+  </div>
+</section>
+
+<!-- ============ DEVICES ============ -->
+<section class="dark grid-bg">
+  <div class="sec-head">
+    <div class="eyebrow">01 · Devices</div>
+    <h2>Core Networking Hardware</h2>
+    <p>Each device below operates primarily at a specific OSI layer. Knowing the layer tells you what the device "reads" to make its decisions — MAC address, IP address, or just electrical signal. Watch each animation to see what the device actually does to traffic.</p>
+  </div>
+
+  <div class="device-grid">
+
+    <!-- REPEATER -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Repeater</h3><span class="layer-tag">L1 · Physical</span></div>
+      <svg viewBox="0 0 260 130">
+        <path d="M15,65 Q35,55 55,65 T95,65 T115,65" class="wave">
+          <animate attributeName="stroke-dashoffset" values="0;-20" dur="1s" repeatCount="indefinite"/>
+        </path>
+        <rect x="116" y="48" width="28" height="34" rx="2" class="devbox-amber"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">RPT</text>
+        <path d="M146,65 Q166,35 186,65 T226,65 T246,65" class="wave-alt">
+          <animate attributeName="stroke-dashoffset" values="0;-20" dur="0.7s" repeatCount="indefinite"/>
+        </path>
+        <circle cx="130" cy="65" r="3" fill="var(--cyan)"><animate attributeName="r" values="3;9;3" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></circle>
+      </svg>
+      <p>Regenerates a weakening signal so it can travel further without losing quality — a weak wave in, a clean strong wave out.</p>
+      <span class="tag">Extends distance</span>
+    </div>
+
+    <!-- HUB -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Hub</h3><span class="layer-tag">L1 · Physical</span></div>
+      <svg viewBox="0 0 260 130">
+        <line x1="130" y1="65" x2="55" y2="25" class="link"/>
+        <line x1="130" y1="65" x2="205" y2="25" class="link"/>
+        <line x1="130" y1="65" x2="55" y2="105" class="link"/>
+        <line x1="130" y1="65" x2="205" y2="105" class="link"/>
+        <rect x="114" y="52" width="32" height="26" rx="3" class="devbox-amber"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">HUB</text>
+        <circle cx="55" cy="25" r="4.5" class="node"/><circle cx="205" cy="25" r="4.5" class="node"/>
+        <circle cx="55" cy="105" r="4.5" class="node"/><circle cx="205" cy="105" r="4.5" class="node"/>
+        <circle class="packet" r="3"><animateMotion dur="1.6s" repeatCount="indefinite" path="M55,25 L130,65" keyTimes="0;1" calcMode="linear"/></circle>
+        <circle class="packet" r="3"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite" path="M130,65 L55,105"/></circle>
+        <circle class="packet" r="3"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite" path="M130,65 L205,25"/></circle>
+        <circle class="packet" r="3"><animateMotion dur="1.6s" begin="0.8s" repeatCount="indefinite" path="M130,65 L205,105"/></circle>
+      </svg>
+      <p>A dumb multiport repeater — one message in gets flooded out of <em>every</em> other port, whether that node needs it or not.</p>
+      <span class="tag">Broadcasts to all</span>
+    </div>
+
+    <!-- MODEM -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Modem</h3><span class="layer-tag">L1 · Physical</span></div>
+      <svg viewBox="0 0 260 130">
+        <polyline points="15,65 15,45 35,45 35,85 55,85 55,45 75,45 75,65 95,65" class="wave" fill="none">
+          <animate attributeName="stroke-dashoffset" values="0;-16" dur="0.8s" repeatCount="indefinite"/>
+        </polyline>
+        <rect x="100" y="48" width="30" height="34" rx="2" class="devbox"/>
+        <text x="115" y="69" text-anchor="middle" class="devlabel">MDM</text>
+        <path d="M132,65 Q150,35 168,65 T204,65 T240,65" class="wave-alt">
+          <animate attributeName="stroke-dashoffset" values="0;-20" dur="0.9s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+      <p>Converts digital signals to analog (and back) so data can ride telephone, cable, or fiber lines to the ISP.</p>
+      <span class="tag">WAN edge</span>
+    </div>
+
+    <!-- SWITCH -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Switch</h3><span class="layer-tag">L2 · Data Link</span></div>
+      <svg viewBox="0 0 260 130">
+        <line x1="130" y1="65" x2="55" y2="25" class="dim-link"/>
+        <line x1="130" y1="65" x2="205" y2="25" class="dim-link"/>
+        <line x1="130" y1="65" x2="55" y2="105" class="dim-link"/>
+        <line x1="130" y1="65" x2="205" y2="105" class="link"/>
+        <rect x="114" y="52" width="32" height="26" rx="3" class="devbox"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">SW</text>
+        <circle cx="55" cy="25" r="4" fill="rgba(255,255,255,0.25)"/><circle cx="205" cy="25" r="4" fill="rgba(255,255,255,0.25)"/>
+        <circle cx="55" cy="105" r="4.5" class="node"/><circle cx="205" cy="105" r="4.5" class="node-alt"/>
+        <circle class="packet" r="3"><animateMotion dur="1.8s" repeatCount="indefinite" path="M55,105 L130,65"/></circle>
+        <circle class="packet" r="3"><animateMotion dur="1.8s" begin="0.9s" repeatCount="indefinite" path="M130,65 L205,105"/></circle>
+      </svg>
+      <p>Learns each port's MAC address and forwards frames <em>only</em> to the intended port — no needless flooding like a hub.</p>
+      <span class="tag">Targeted delivery</span>
+    </div>
+
+    <!-- BRIDGE -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Bridge</h3><span class="layer-tag">L2 · Data Link</span></div>
+      <svg viewBox="0 0 260 130">
+        <circle cx="35" cy="45" r="4" class="node"/><circle cx="35" cy="85" r="4" class="node"/>
+        <circle cx="225" cy="45" r="4" class="node-alt"/><circle cx="225" cy="85" r="4" class="node-alt"/>
+        <line x1="35" y1="45" x2="112" y2="65" class="link"/><line x1="35" y1="85" x2="112" y2="65" class="link"/>
+        <line x1="148" y1="65" x2="225" y2="45" class="link"/><line x1="148" y1="65" x2="225" y2="85" class="link"/>
+        <rect x="112" y="52" width="36" height="26" rx="3" class="devbox"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">BRG</text>
+        <circle class="packet" r="3"><animateMotion dur="2s" repeatCount="indefinite" path="M35,45 L225,85"/></circle>
+        <circle fill="var(--rose)" r="3" opacity="0"><animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M35,85 L130,65"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;0.6;0.65" dur="2s" begin="1s" repeatCount="indefinite"/></circle>
+      </svg>
+      <p>Filters traffic between two segments using MAC addresses — local chatter (red) stays local, real cross-segment traffic (amber) passes through.</p>
+      <span class="tag">Segment filter</span>
+    </div>
+
+    <!-- WIRELESS AP -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Wireless Access Point</h3><span class="layer-tag">L2 · Data Link</span></div>
+      <svg viewBox="0 0 260 130">
+        <line x1="130" y1="82" x2="130" y2="112" class="link"/>
+        <circle cx="130" cy="118" r="4.5" class="node"/>
+        <rect x="112" y="60" width="36" height="22" rx="3" class="devbox-amber"/>
+        <text x="130" y="75" text-anchor="middle" class="devlabel">AP</text>
+        <circle cx="130" cy="60" r="10" class="ripple"><animate attributeName="r" values="8;40" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="2s" repeatCount="indefinite"/></circle>
+        <circle cx="130" cy="60" r="10" class="ripple"><animate attributeName="r" values="8;40" dur="2s" begin="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="2s" begin="1s" repeatCount="indefinite"/></circle>
+        <rect x="34" y="24" width="18" height="12" rx="2" class="devbox"/>
+        <rect x="208" y="24" width="18" height="12" rx="2" class="devbox"/>
+      </svg>
+      <p>Bridges wireless clients (802.11) onto the wired LAN — broadcasting an SSID and converting radio frames to wired frames.</p>
+      <span class="tag">Wi-Fi entry point</span>
+    </div>
+
+    <!-- ROUTER -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Router</h3><span class="layer-tag">L3 · Network</span></div>
+      <svg viewBox="0 0 260 130">
+        <rect x="10" y="30" width="70" height="70" rx="6" fill="none" stroke="rgba(94,234,212,0.4)" stroke-dasharray="4 3"/>
+        <text x="45" y="22" text-anchor="middle" class="devlabel">NETWORK A</text>
+        <rect x="180" y="30" width="70" height="70" rx="6" fill="none" stroke="rgba(251,191,36,0.4)" stroke-dasharray="4 3"/>
+        <text x="215" y="22" text-anchor="middle" class="devlabel">NETWORK B</text>
+        <circle cx="45" cy="65" r="4.5" class="node"/><circle cx="215" cy="65" r="4.5" class="node-alt"/>
+        <line x1="80" y1="65" x2="112" y2="65" class="link"/><line x1="148" y1="65" x2="180" y2="65" class="link"/>
+        <rect x="112" y="52" width="36" height="26" rx="3" class="devbox"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">RTR</text>
+        <circle fill="var(--cyan)" r="3.5"><animateMotion dur="2.4s" repeatCount="indefinite" path="M45,65 L130,65"/><animate attributeName="fill" values="var(--cyan);var(--cyan);var(--amber)" keyTimes="0;0.55;0.56" dur="2.4s" repeatCount="indefinite"/></circle>
+      </svg>
+      <p>Forwards packets between two <em>different</em> networks using IP addresses and a routing table — the boundary between LAN and WAN.</p>
+      <span class="tag">Inter-network</span>
+    </div>
+
+    <!-- FIREWALL -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Firewall</h3><span class="layer-tag">L3–L7</span></div>
+      <svg viewBox="0 0 260 130">
+        <line x1="130" y1="15" x2="130" y2="45" class="wall"/>
+        <line x1="130" y1="70" x2="130" y2="115" class="wall"/>
+        <text x="130" y="12" text-anchor="middle" class="devlabel">FIREWALL RULES</text>
+        <circle fill="var(--cyan)" r="4"><animateMotion dur="2s" repeatCount="indefinite" path="M20,58 L240,58"/></circle>
+        <circle fill="var(--rose)" r="4"><animateMotion dur="2s" begin="1s" repeatCount="indefinite" path="M20,85 L128,85"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;0.48;0.5" dur="2s" begin="1s" repeatCount="indefinite"/></circle>
+        <text x="20" y="105" class="devlabel" fill="var(--cyan)">ALLOWED</text>
+        <text x="20" y="45" class="devlabel" fill="var(--rose)">BLOCKED</text>
+      </svg>
+      <p>Filters traffic against rules — ports, IPs, protocols, or application content — enforcing a security boundary between zones.</p>
+      <span class="tag">Security control</span>
+    </div>
+
+    <!-- PATCH PANEL -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Patch Panel</h3><span class="layer-tag">L1 · Physical</span></div>
+      <svg viewBox="0 0 260 130">
+        <g class="devbox">
+          <rect x="20" y="20" width="20" height="14" rx="1"/><rect x="52" y="20" width="20" height="14" rx="1"/>
+          <rect x="84" y="20" width="20" height="14" rx="1"/><rect x="116" y="20" width="20" height="14" rx="1"/>
+          <rect x="148" y="20" width="20" height="14" rx="1"/><rect x="180" y="20" width="20" height="14" rx="1"/>
+        </g>
+        <g class="devbox-amber">
+          <rect x="20" y="96" width="20" height="14" rx="1"/><rect x="52" y="96" width="20" height="14" rx="1"/>
+          <rect x="84" y="96" width="20" height="14" rx="1"/><rect x="116" y="96" width="20" height="14" rx="1"/>
+          <rect x="148" y="96" width="20" height="14" rx="1"/><rect x="180" y="96" width="20" height="14" rx="1"/>
+        </g>
+        <path d="M30,34 Q60,65 62,96" class="link" fill="none" stroke-width="2">
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="2.4s" repeatCount="indefinite"/>
+        </path>
+        <path d="M158,34 Q120,65 94,96" class="link" fill="none" stroke-width="2">
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.1;0.9;1" dur="2.4s" begin="1.2s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+      <p>A fixed passive panel of ports terminating cable runs, letting technicians re-patch connections without redoing wall wiring.</p>
+      <span class="tag">Cable management</span>
+    </div>
+
+    <!-- NIC -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Network Interface Card (NIC)</h3><span class="layer-tag">L1–L2</span></div>
+      <svg viewBox="0 0 260 130">
+        <rect x="30" y="40" width="80" height="50" rx="4" class="devbox"/>
+        <text x="70" y="69" text-anchor="middle" class="devlabel">NIC</text>
+        <circle cx="98" cy="50" r="4" fill="var(--cyan)"><animate attributeName="opacity" values="1;0.15;1" dur="1s" repeatCount="indefinite"/></circle>
+        <line x1="110" y1="65" x2="230" y2="65" class="link"/>
+        <circle cx="230" cy="65" r="5" class="node-alt"/>
+        <circle class="packet" r="3"><animateMotion dur="1.4s" repeatCount="indefinite" path="M112,65 L228,65"/></circle>
+      </svg>
+      <p>The hardware inside an endpoint providing its physical connection and unique MAC address — the blinking light is its link activity.</p>
+      <span class="tag">Endpoint hardware</span>
+    </div>
+
+    <!-- LOAD BALANCER -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Load Balancer</h3><span class="layer-tag">L3–L4</span></div>
+      <svg viewBox="0 0 260 130">
+        <circle cx="30" cy="65" r="5" class="node"/>
+        <line x1="35" y1="65" x2="112" y2="65" class="link"/>
+        <rect x="112" y="52" width="36" height="26" rx="3" class="devbox-amber"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">LB</text>
+        <line x1="148" y1="65" x2="220" y2="25" class="link"/>
+        <line x1="148" y1="65" x2="220" y2="65" class="link"/>
+        <line x1="148" y1="65" x2="220" y2="105" class="link"/>
+        <circle cx="220" cy="25" r="4.5" class="node-alt"/><circle cx="220" cy="65" r="4.5" class="node-alt"/><circle cx="220" cy="105" r="4.5" class="node-alt"/>
+        <circle class="packet" r="3"><animateMotion dur="0.7s" repeatCount="indefinite" path="M30,65 L130,65"/></circle>
+        <circle class="packet" r="3"><animateMotion dur="0.7s" begin="0.7s" repeatCount="indefinite" path="M130,65 L220,25"/></circle>
+      </svg>
+      <p>Distributes incoming requests across multiple servers in turn, improving availability and preventing any one server overloading.</p>
+      <span class="tag">Availability</span>
+    </div>
+
+    <!-- PROXY -->
+    <div class="device-card">
+      <div class="dcard-top"><h3>Proxy Server</h3><span class="layer-tag">L7 · Application</span></div>
+      <svg viewBox="0 0 260 130">
+        <circle cx="30" cy="65" r="5" class="node"/>
+        <line x1="35" y1="65" x2="112" y2="65" class="link"/>
+        <rect x="112" y="52" width="36" height="26" rx="3" class="devbox"/>
+        <text x="130" y="69" text-anchor="middle" class="devlabel">PXY</text>
+        <line x1="148" y1="65" x2="215" y2="65" class="link"/>
+        <ellipse cx="228" cy="65" rx="22" ry="15" fill="none" stroke="rgba(255,255,255,0.3)"/>
+        <text x="228" y="69" text-anchor="middle" class="devlabel">NET</text>
+        <circle class="packet" r="3"><animateMotion dur="1.2s" repeatCount="indefinite" path="M30,65 L225,65"/></circle>
+        <circle fill="var(--cyan)" r="3"><animateMotion dur="1.2s" begin="1.2s" repeatCount="indefinite" path="M225,65 L30,65"/></circle>
+      </svg>
+      <p>Sits between clients and the internet, forwarding requests on their behalf — used for caching, content filtering, or anonymity.</p>
+      <span class="tag">Intermediary</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ TOPOLOGIES ============ -->
+<section class="dark grid-bg">
+  <div class="sec-head">
+    <div class="eyebrow">02 · Topology</div>
+    <h2>Physical &amp; Logical Topologies</h2>
+    <p><strong>Physical topology</strong> is how devices are actually cabled together. <strong>Logical topology</strong> is how data actually travels, regardless of the physical layout. The two don't always match — a star-wired LAN, for instance, behaves logically like a bus.</p>
+  </div>
+
+  <div class="topo-grid">
+
+    <div class="topo-card">
+      <h3>Bus</h3>
+      <div class="sub">Single backbone cable</div>
+      <svg viewBox="0 0 260 150">
+        <line x1="20" y1="75" x2="240" y2="75" class="link" stroke-width="2"/>
+        <circle cx="50" cy="75" r="5" class="node"/><line x1="50" y1="75" x2="50" y2="40" class="link"/><rect x="38" y="20" width="24" height="18" rx="2" fill="none" stroke="#5EEAD4"/>
+        <circle cx="105" cy="75" r="5" class="node"/><line x1="105" y1="75" x2="105" y2="110" class="link"/><rect x="93" y="112" width="24" height="18" rx="2" fill="none" stroke="#5EEAD4"/>
+        <circle cx="160" cy="75" r="5" class="node"/><line x1="160" y1="75" x2="160" y2="40" class="link"/><rect x="148" y="20" width="24" height="18" rx="2" fill="none" stroke="#5EEAD4"/>
+        <circle cx="215" cy="75" r="5" class="node"/><line x1="215" y1="75" x2="215" y2="110" class="link"/><rect x="203" y="112" width="24" height="18" rx="2" fill="none" stroke="#5EEAD4"/>
+        <circle class="packet" r="3.2"><animateMotion dur="3s" repeatCount="indefinite" path="M20,75 L240,75"/></circle>
+      </svg>
+      <p>All nodes share one backbone cable terminated at both ends. Cheap and simple, but one break disables the whole segment.</p>
+      <div class="pill-row"><span class="pill pro">Low cost</span><span class="pill con">Single point of failure</span></div>
+    </div>
+
+    <div class="topo-card">
+      <h3>Star</h3>
+      <div class="sub">Central switch / hub</div>
+      <svg viewBox="0 0 260 150">
+        <line x1="130" y1="75" x2="55" y2="30" class="link"/>
+        <line x1="130" y1="75" x2="205" y2="30" class="link"/>
+        <line x1="130" y1="75" x2="55" y2="120" class="link"/>
+        <line x1="130" y1="75" x2="205" y2="120" class="link"/>
+        <rect x="112" y="60" width="36" height="30" rx="3" fill="none" stroke="#FBBF24" stroke-width="2"/>
+        <circle cx="55" cy="30" r="5" class="node"/>
+        <circle cx="205" cy="30" r="5" class="node"/>
+        <circle cx="55" cy="120" r="5" class="node"/>
+        <circle cx="205" cy="120" r="5" class="node"/>
+        <circle class="packet" r="3.2"><animateMotion dur="2.4s" repeatCount="indefinite" path="M130,75 L55,30"/></circle>
+        <circle class="packet" r="3.2"><animateMotion dur="2.8s" repeatCount="indefinite" path="M130,75 L205,120"/></circle>
+      </svg>
+      <p>Every node connects to a central switch. The most common LAN topology — easy to manage, but the hub is a critical dependency.</p>
+      <div class="pill-row"><span class="pill pro">Easy to troubleshoot</span><span class="pill con">Hub is critical</span></div>
+    </div>
+
+    <div class="topo-card">
+      <h3>Ring</h3>
+      <div class="sub">Closed loop</div>
+      <svg viewBox="0 0 260 150">
+        <circle cx="130" cy="75" r="52" class="link" fill="none"/>
+        <circle cx="130" cy="23" r="5" class="node"/>
+        <circle cx="178" cy="75" r="5" class="node"/>
+        <circle cx="130" cy="127" r="5" class="node"/>
+        <circle cx="82" cy="75" r="5" class="node"/>
+        <circle class="packet" r="3.2"><animateMotion dur="4s" repeatCount="indefinite" path="M130,23 A52,52 0 1,1 129.9,23"/></circle>
+      </svg>
+      <p>Each node connects to exactly two neighbors, forming a loop. Data travels in one (or both) directions around the ring.</p>
+      <div class="pill-row"><span class="pill pro">Predictable flow</span><span class="pill con">Break can down the loop</span></div>
+    </div>
+
+    <div class="topo-card">
+      <h3>Mesh</h3>
+      <div class="sub">Full / partial interconnect</div>
+      <svg viewBox="0 0 260 150">
+        <g class="link">
+          <line x1="60" y1="30" x2="200" y2="30"/>
+          <line x1="60" y1="30" x2="60" y2="120"/>
+          <line x1="60" y1="30" x2="200" y2="120"/>
+          <line x1="200" y1="30" x2="60" y2="120"/>
+          <line x1="200" y1="30" x2="200" y2="120"/>
+          <line x1="60" y1="120" x2="200" y2="120"/>
+        </g>
+        <circle cx="60" cy="30" r="5" class="node"/>
+        <circle cx="200" cy="30" r="5" class="node"/>
+        <circle cx="60" cy="120" r="5" class="node"/>
+        <circle cx="200" cy="120" r="5" class="node"/>
+        <circle class="packet" r="3.2"><animateMotion dur="3s" repeatCount="indefinite" path="M60,30 L200,120"/></circle>
+      </svg>
+      <p>Nodes connect directly to many (partial) or all (full) other nodes. Maximum redundancy at the cost of cabling complexity.</p>
+      <div class="pill-row"><span class="pill pro">Highly redundant</span><span class="pill con">Expensive to scale</span></div>
+    </div>
+
+    <div class="topo-card">
+      <h3>Tree</h3>
+      <div class="sub">Hierarchical star-of-stars</div>
+      <svg viewBox="0 0 260 150">
+        <line x1="130" y1="25" x2="70" y2="70" class="link"/>
+        <line x1="130" y1="25" x2="190" y2="70" class="link"/>
+        <line x1="70" y1="70" x2="40" y2="120" class="link"/>
+        <line x1="70" y1="70" x2="90" y2="120" class="link"/>
+        <line x1="190" y1="70" x2="165" y2="120" class="link"/>
+        <line x1="190" y1="70" x2="215" y2="120" class="link"/>
+        <rect x="118" y="12" width="24" height="16" rx="2" fill="none" stroke="#FBBF24" stroke-width="2"/>
+        <circle cx="70" cy="70" r="4.5" class="node"/>
+        <circle cx="190" cy="70" r="4.5" class="node"/>
+        <circle cx="40" cy="120" r="4" class="node-alt"/>
+        <circle cx="90" cy="120" r="4" class="node-alt"/>
+        <circle cx="165" cy="120" r="4" class="node-alt"/>
+        <circle cx="215" cy="120" r="4" class="node-alt"/>
+        <circle class="packet" r="3"><animateMotion dur="3s" repeatCount="indefinite" path="M130,25 L40,120"/></circle>
+      </svg>
+      <p>Star networks linked through a root hub, forming parent/child branches — common in structured enterprise cabling.</p>
+      <div class="pill-row"><span class="pill pro">Scalable, organized</span><span class="pill con">Root failure is costly</span></div>
+    </div>
+
+    <div class="topo-card">
+      <h3>Hybrid</h3>
+      <div class="sub">Combination of the above</div>
+      <svg viewBox="0 0 260 150">
+        <line x1="60" y1="80" x2="120" y2="40" class="link"/>
+        <line x1="60" y1="80" x2="120" y2="120" class="link"/>
+        <line x1="120" y1="40" x2="120" y2="120" class="link"/>
+        <line x1="120" y1="80" x2="200" y2="80" class="link" stroke-dasharray="3,3"/>
+        <line x1="200" y1="80" x2="235" y2="45" class="link"/>
+        <line x1="200" y1="80" x2="235" y2="115" class="link"/>
+        <circle cx="60" cy="80" r="5" class="node"/>
+        <circle cx="120" cy="40" r="5" class="node"/>
+        <circle cx="120" cy="120" r="5" class="node"/>
+        <rect x="190" y="70" width="20" height="20" rx="3" fill="none" stroke="#FBBF24" stroke-width="2"/>
+        <circle cx="235" cy="45" r="5" class="node-alt"/>
+        <circle cx="235" cy="115" r="5" class="node-alt"/>
+        <circle class="packet" r="3"><animateMotion dur="3.2s" repeatCount="indefinite" path="M60,80 L235,45"/></circle>
+      </svg>
+      <p>Real-world networks mixing two or more topologies (e.g. mesh core + star edges) to balance cost, performance, and redundancy.</p>
+      <div class="pill-row"><span class="pill pro">Flexible</span><span class="pill con">Complex to design</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ COMPARISON ============ -->
+<section class="grid-bg light">
+  <div class="sec-head">
+    <div class="eyebrow">03 · Comparison</div>
+    <h2>Topology Quick-Reference Table</h2>
+    <p>Use this table when deciding which topology fits a given scenario, or when answering exam-style "best topology for..." questions.</p>
+  </div>
+  <table class="cmp">
+    <tr><th>Topology</th><th>Cabling cost</th><th>Fault tolerance</th><th>Ease of troubleshooting</th><th>Typical use</th></tr>
+    <tr><td>Bus</td><td>Low</td><td>Low — one break affects all</td><td>Hard</td><td>Legacy / small coax LANs</td></tr>
+    <tr><td>Star</td><td>Medium</td><td>Medium — hub is SPOF</td><td>Easy</td><td>Standard office LAN</td></tr>
+    <tr><td>Ring</td><td>Medium</td><td>Low–Medium</td><td>Medium</td><td>Token Ring, some MAN/fiber rings</td></tr>
+    <tr><td>Mesh</td><td>High</td><td>Very high</td><td>Medium</td><td>WAN backbones, critical infrastructure</td></tr>
+    <tr><td>Tree</td><td>Medium–High</td><td>Medium</td><td>Medium</td><td>Large structured enterprise networks</td></tr>
+    <tr><td>Hybrid</td><td>Varies</td><td>Depends on design</td><td>Depends on design</td><td>Real-world enterprise networks</td></tr>
+  </table>
+</section>
+
+<!-- ============ LAB ACTIVITY ============ -->
+<section class="dark grid-bg">
+  <div class="sec-head">
+    <div class="eyebrow">04 · Lab Activity</div>
+    <h2>Identification Exercise</h2>
+    <p>Work through the steps below individually or in pairs, then complete the worksheet.</p>
+  </div>
+
+  <ol class="lab-steps">
+    <li><strong>Draw your home/ University network</strong><span>Sketch every device you can find between your laptop and the internet — endpoint, switch, router, modem, ISP.</span></li>
+    <li><strong>Label each device</strong><span>For every device on your sketch, write its name and the OSI layer it primarily operates at (use the reference cards above).</span></li>
+    <li><strong>Classify the topology</strong><span>Look at how the devices are physically cabled. Is it a star? A tree of stars? Note both the physical and logical topology.</span></li>
+    <li><strong>Justify the choice</strong><span>Write one sentence on why that topology suits the environment (cost, redundancy, size).</span></li>
+    <li><strong>Peer check</strong><span>Swap sketches with a partner and verify each other's device layer labels.</span></li>
+  </ol>
+
+  <div class="worksheet">
+    <h4>Worksheet · Fill In As You Go</h4>
+    <p class="hint">Type directly into the fields below (this page saves nothing — screenshot or print when finished), or print the page and complete it by hand.</p>
+
+    <div class="ws-row section-title"><span>Part A — Devices found on your sketch</span></div>
+    <div class="ws-row head"><span>Device observed</span><span>OSI layer</span><span>Function, in one line</span></div>
+    <div class="ws-row"><input class="ws-input" type="text" placeholder="e.g. Router"><input class="ws-input" type="text" placeholder="e.g. L3"><input class="ws-input" type="text" placeholder="e.g. Connects my LAN to the ISP"></div>
+    <div class="ws-row"><input class="ws-input" type="text" placeholder="Device"><input class="ws-input" type="text" placeholder="Layer"><input class="ws-input" type="text" placeholder="Function"></div>
+    <div class="ws-row"><input class="ws-input" type="text" placeholder="Device"><input class="ws-input" type="text" placeholder="Layer"><input class="ws-input" type="text" placeholder="Function"></div>
+    <div class="ws-row"><input class="ws-input" type="text" placeholder="Device"><input class="ws-input" type="text" placeholder="Layer"><input class="ws-input" type="text" placeholder="Function"></div>
+    <div class="ws-row"><input class="ws-input" type="text" placeholder="Device"><input class="ws-input" type="text" placeholder="Layer"><input class="ws-input" type="text" placeholder="Function"></div>
+
+    <div class="ws-row section-title"><span>Part B — Topology classification</span></div>
+    <div class="ws-row head"><span>Physical topology</span><span>Logical topology</span><span>Reason for this design</span></div>
+    <div class="ws-row"><input class="ws-input" type="text" placeholder="e.g. Star"><input class="ws-input" type="text" placeholder="e.g. Bus"><input class="ws-input" type="text" placeholder="e.g. Cheap to rewire, one switch handles all traffic"></div>
+
+    <div class="ws-row section-title"><span>Part C — Reflection</span></div>
+    <div class="ws-row" style="grid-template-columns:1fr;">
+      <input class="ws-input" type="text" placeholder="If one device on your sketch failed right now, what would stop working — and why?">
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESOURCES (second-to-last) ============ -->
+<section class="grid-bg light">
+  <div class="sec-head">
+    <div class="eyebrow">05 · Keep Learning</div>
+    <h2>YouTube Channels &amp; References</h2>
+    <p>These channels are widely used by networking and cybersecurity students to reinforce exactly what's covered in this lab sheet — devices, topologies, and the OSI/TCP-IP models.</p>
+  </div>
+
+  <div class="res-grid">
+    <div class="res-card">
+      <span class="plat">YouTube</span>
+      <h3>PowerCert Animated Videos</h3>
+      <p>Short, clean whiteboard-style animations that visually break down networking hardware, topologies, and protocols — great for a first pass on any topic in this sheet.</p>
+      <a href="https://www.youtube.com/@PowerCertAnimatedVideos" target="_blank" rel="noopener">youtube.com/@PowerCertAnimatedVideos</a>
+    </div>
+    <div class="res-card">
+      <span class="plat">YouTube</span>
+      <h3>NetworkChuck</h3>
+      <p>High-energy, practical walkthroughs of networking and cybersecurity concepts, including hands-on labs with real routers, switches, and home-lab builds.</p>
+      <a href="https://www.youtube.com/@NetworkChuck" target="_blank" rel="noopener">youtube.com/@NetworkChuck</a>
+    </div>
+    <div class="res-card">
+      <span class="plat">YouTube</span>
+      <h3>David Bombal</h3>
+      <p>In-depth interviews and tutorials covering networking, Cisco/CCNA topics, and career-focused content from an experienced network engineer and trainer.</p>
+      <a href="https://www.youtube.com/@davidbombal" target="_blank" rel="noopener">youtube.com/@davidbombal</a>
+    </div>
+    <div class="res-card">
+      <span class="plat">YouTube</span>
+      <h3>IBM Technology</h3>
+      <p>Concept-first explainer videos from IBM covering networking fundamentals, cloud infrastructure, and security — good for grounding terminology in enterprise context.</p>
+      <a href="https://www.youtube.com/@IBMTechnology" target="_blank" rel="noopener">youtube.com/@IBMTechnology</a>
+    </div>
+  </div>
+
+  <ul class="book-list" style="color:var(--muted);">
+    <li>Professor Messer — free CompTIA Network+/Security+ video courses and study notes</li>
+    <li>CompTIA official study guides — Network+ (N10-009) and Security+ (SY0-701)</li>
+    <li>Cisco Networking Academy — free "Networking Basics" and "Introduction to Cybersecurity" courses</li>
+  </ul>
+</section>
+
+<!-- ============ FINAL: SECURITY+ INTRO ============ -->
+<section class="final dark grid-bg">
+  <span class="badge">Next Course</span>
+  <div class="eyebrow">Where This Leads</div>
+  <h2>Introduction to CompTIA Security+</h2>
+  <p class="lede">Once you're comfortable identifying network hardware and topologies, Security+ builds directly on top of that foundation — teaching you to secure the devices and networks you just learned to map.</p>
+
+  <div class="domain-grid">
+    <div class="domain-card"><span class="num">01</span><h4>General Security Concepts</h4><p>CIA triad, security controls, zero trust basics.</p></div>
+    <div class="domain-card"><span class="num">02</span><h4>Threats, Vulnerabilities &amp; Mitigations</h4><p>Malware, social engineering, and how to defend against them.</p></div>
+    <div class="domain-card"><span class="num">03</span><h4>Security Architecture</h4><p>Securing the very devices and topologies from this lab — firewalls, segmentation, zero trust design.</p></div>
+    <div class="domain-card"><span class="num">04</span><h4>Security Operations</h4><p>Hardening, incident response, monitoring, and alerting.</p></div>
+    <div class="domain-card"><span class="num">05</span><h4>Security Program Management &amp; Oversight</h4><p>Risk management, compliance, governance, and third-party risk.</p></div>
+  </div>
+
+  <div class="cta-row">
+    <div class="stat"><b>SY0-701</b>Current exam objectives</div>
+    <div class="stat"><b>90 min</b>Exam duration</div>
+    <div class="stat"><b>No prereq</b>Network+ recommended, not required</div>
+  </div>
+</section>
+
+<footer>
+  <span>Network Hardware &amp; Topology Identification — Lab Sheet</span>
+  <span>Prepared for classroom / self-study use</span>
+</footer>
+
+</body>
+</html>
