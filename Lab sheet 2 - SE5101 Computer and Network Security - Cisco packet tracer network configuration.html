@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cisco Packet Tracer Practical Lab Sheet</title>
+<style>
+:root{
+  --navy:#102a43; --blue:#1976d2; --cyan:#00a6a6; --ink:#243447;
+  --muted:#5f6c7b; --paper:#f5f8fb; --card:#fff; --line:#d9e2ec;
+  --code:#17212b; --accent:#e8f3ff; --warn:#fff7df; --good:#eaf8f0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif;line-height:1.6}
+header{background:linear-gradient(135deg,#102a43,#1976d2);color:#fff;padding:48px 24px}
+.wrap{max-width:1100px;margin:auto}
+.eyebrow{font-size:.82rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85;font-weight:700}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.08;margin:10px 0}
+.subtitle{font-size:1.08rem;max-width:760px;opacity:.92}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.meta span{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);padding:7px 12px;border-radius:999px}
+main{padding:32px 20px 70px}
+nav{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin-bottom:28px;box-shadow:0 5px 18px rgba(16,42,67,.05)}
+nav strong{display:block;margin-bottom:8px}
+nav a{color:var(--blue);text-decoration:none;margin-right:18px;display:inline-block}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px;margin:22px 0;box-shadow:0 5px 18px rgba(16,42,67,.04)}
+h2{color:var(--navy);font-size:1.65rem;margin:0 0 18px;border-bottom:2px solid #e7eef5;padding-bottom:10px}
+h3{color:#174a73;margin-top:26px}
+table{width:100%;border-collapse:collapse;margin:16px 0}
+th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:top}
+th{background:#eef5fb;color:var(--navy)}
+code{font-family:Consolas,Monaco,monospace;background:#eef2f5;padding:2px 5px;border-radius:4px}
+pre{background:var(--code);color:#e9f1f7;padding:17px 18px;border-radius:10px;overflow:auto;border-left:4px solid var(--blue);font-size:.92rem;line-height:1.5}
+.callout{padding:16px 18px;border-radius:10px;margin:18px 0;border-left:5px solid var(--blue);background:var(--accent)}
+.warn{border-left-color:#d99a00;background:var(--warn)}
+.good{border-left-color:#239b56;background:var(--good)}
+.diagram{background:#f8fafc;border:1px dashed #b9c7d6;padding:18px;border-radius:10px;white-space:pre;overflow:auto;font-family:Consolas,monospace}
+.question{background:#f7f9fb;border:1px solid var(--line);padding:14px 16px;border-radius:9px;margin:10px 0}
+.checklist{list-style:none;padding:0}
+.checklist li{margin:9px 0}
+.checklist input{margin-right:9px;transform:scale(1.15)}
+footer{text-align:center;color:var(--muted);padding:25px}
+.small{color:var(--muted);font-size:.93rem}
+@media(max-width:700px){
+ section{padding:20px} header{padding:35px 18px} main{padding:20px 12px}
+ pre{font-size:.82rem}
+}
+@media print{
+ body{background:#fff}
+ nav{display:none}
+ section{box-shadow:none;break-inside:avoid}
+ header{background:#102a43}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="eyebrow">Computer & Network Security • Practical Lab</div>
+<h1>Cisco Network Configuration & Troubleshooting</h1>
+<p class="subtitle">A guided Cisco Packet Tracer practical covering topology design, switching, VLANs, trunking, inter-VLAN routing, DHCP, static routing, OSPF, ACLs and packet simulation.</p>
+<div class="meta">
+<span>Duration: 3 Hours</span><span>Software: Cisco Packet Tracer</span><span>Beginner → Intermediate</span>
+</div>
+</div>
+</header>
+
+<main class="wrap">
+<nav>
+<strong>Lab contents</strong>
+<a href="#outcomes">Learning Outcomes</a>
+<a href="#basic">Basic Network</a>
+<a href="#switch">Switches</a>
+<a href="#vlan">VLANs</a>
+<a href="#routing">Inter-VLAN Routing</a>
+<a href="#dhcp">DHCP</a>
+<a href="#static">Static Routing</a>
+<a href="#ospf">OSPF</a>
+<a href="#acl">ACL</a>
+<a href="#simulation">Simulation</a>
+<a href="#challenge">Final Challenge</a>
+</nav>
+
+<section id="outcomes">
+<h2>1. Learning Outcomes</h2>
+<p>By the end of this practical, students should be able to:</p>
+<ol>
+<li>Identify and connect common network devices.</li>
+<li>Configure basic Cisco switch settings.</li>
+<li>Configure VLANs and access ports.</li>
+<li>Configure trunk links.</li>
+<li>Configure inter-VLAN routing.</li>
+<li>Configure DHCP.</li>
+<li>Configure static routing.</li>
+<li>Configure OSPF.</li>
+<li>Configure a basic ACL.</li>
+<li>Examine packet movement using Packet Tracer Simulation Mode.</li>
+<li>Verify and troubleshoot network connectivity.</li>
+</ol>
+</section>
+
+<section id="basic">
+<h2>2. Build a Basic Network</h2>
+<h3>2.1 Required Devices</h3>
+<table>
+<tr><th>Device</th><th>Quantity</th></tr>
+<tr><td>Cisco 2960 Switch</td><td>2</td></tr>
+<tr><td>Cisco 2911 Router</td><td>2</td></tr>
+<tr><td>PC</td><td>4</td></tr>
+</table>
+<p>Create the following initial topology:</p>
+<div class="diagram">PC1 ───── SW1 ───── R1 ───── R2 ───── SW2 ───── PC3
+PC2 ───── SW1                              └───── PC4</div>
+<p>Use copper straight-through cables for PC-to-switch and switch-to-router connections. Use an appropriate Ethernet connection between the routers.</p>
+
+<h3>2.2 Configure PC IP Addresses</h3>
+<table>
+<tr><th>PC</th><th>IP Address</th><th>Subnet Mask</th><th>Gateway</th></tr>
+<tr><td>PC1</td><td>192.168.10.10</td><td>255.255.255.0</td><td>192.168.10.1</td></tr>
+<tr><td>PC2</td><td>192.168.10.20</td><td>255.255.255.0</td><td>192.168.10.1</td></tr>
+<tr><td>PC3</td><td>192.168.20.10</td><td>255.255.255.0</td><td>192.168.20.1</td></tr>
+<tr><td>PC4</td><td>192.168.20.20</td><td>255.255.255.0</td><td>192.168.20.1</td></tr>
+</table>
+<p>On each PC select <strong>Desktop → IP Configuration</strong> and enter the relevant values.</p>
+</section>
+
+<section id="switch">
+<h2>3. Basic Switch Configuration</h2>
+<h3>3.1 Configure SW1</h3>
+<pre>enable
+configure terminal
+hostname SW1
+
+line console 0
+password cisco
+login
+exit
+
+enable secret class
+
+banner motd #Authorized Access Only#
+
+end
+copy running-config startup-config</pre>
+
+<h3>3.2 Verify</h3>
+<pre>show running-config
+show startup-config</pre>
+<div class="callout good"><strong>Check:</strong> Confirm that the hostname, console password, enable secret and banner are present.</div>
+
+<h3>3.3 Configure SW2</h3>
+<pre>enable
+configure terminal
+hostname SW2
+
+enable secret class
+
+line console 0
+password cisco
+login
+exit
+
+banner motd #Authorized Access Only#
+
+end
+copy running-config startup-config</pre>
+</section>
+
+<section id="vlan">
+<h2>4. Configure VLANs</h2>
+<p>Create two VLANs:</p>
+<table>
+<tr><th>VLAN</th><th>Name</th><th>Purpose</th></tr>
+<tr><td>10</td><td>STUDENTS</td><td>Student network</td></tr>
+<tr><td>20</td><td>STAFF</td><td>Staff network</td></tr>
+</table>
+
+<h3>4.1 Create VLANs on SW1</h3>
+<pre>enable
+configure terminal
+
+vlan 10
+name STUDENTS
+exit
+
+vlan 20
+name STAFF
+exit</pre>
+<p>Verify:</p>
+<pre>show vlan brief</pre>
+
+<h3>4.2 Assign PC1 and PC2 to VLAN 10</h3>
+<p>Assume PC1 and PC2 are connected to SW1 Fa0/1 and Fa0/2.</p>
+<pre>configure terminal
+
+interface range fa0/1-2
+switchport mode access
+switchport access vlan 10
+exit</pre>
+<p>Verify:</p>
+<pre>show vlan brief</pre>
+
+<h3>4.3 Configure VLAN 20 on SW2</h3>
+<pre>enable
+configure terminal
+
+vlan 20
+name STAFF
+exit
+
+interface range fa0/1-2
+switchport mode access
+switchport access vlan 20
+exit</pre>
+<p>Verify:</p>
+<pre>show vlan brief</pre>
+</section>
+
+<section id="routing">
+<h2>5. Configure Trunking & Inter-VLAN Routing</h2>
+<div class="callout"><strong>Concept:</strong> An access port normally carries one VLAN. A trunk can carry traffic for multiple VLANs.</div>
+
+<h3>5.1 Configure the SW1-to-R1 Link as a Trunk</h3>
+<p>Assume SW1 Fa0/24 connects to R1 G0/0.</p>
+<pre>configure terminal
+
+interface fa0/24
+switchport mode trunk
+exit</pre>
+<p>Verify:</p>
+<pre>show interfaces trunk</pre>
+
+<h3>5.2 Configure Router-on-a-Stick on R1</h3>
+<p>Enable the physical interface:</p>
+<pre>enable
+configure terminal
+hostname R1
+
+interface gigabitEthernet 0/0
+no shutdown
+exit</pre>
+
+<p>Create the VLAN 10 subinterface:</p>
+<pre>interface gigabitEthernet 0/0.10
+encapsulation dot1Q 10
+ip address 192.168.10.1 255.255.255.0
+exit</pre>
+
+<p>Create the VLAN 20 subinterface:</p>
+<pre>interface gigabitEthernet 0/0.20
+encapsulation dot1Q 20
+ip address 192.168.20.1 255.255.255.0
+exit</pre>
+
+<p>Verify:</p>
+<pre>show ip interface brief</pre>
+
+<h3>5.3 Test Inter-VLAN Communication</h3>
+<p>From PC1:</p>
+<pre>ping 192.168.10.20
+ping 192.168.20.10</pre>
+<div class="question"><strong>Q1.</strong> Why can PC1 communicate with PC2 without a router?</div>
+<div class="question"><strong>Q2.</strong> Why is a router required for PC1 to communicate with PC3?</div>
+<div class="question"><strong>Q3.</strong> What is the default gateway of PC1?</div>
+<div class="question"><strong>Q4.</strong> What is the purpose of <code>encapsulation dot1Q 10</code>?</div>
+</section>
+
+<section id="dhcp">
+<h2>6. Configure DHCP</h2>
+<p>Configure R1 as a DHCP server. First change the PCs to DHCP using <strong>Desktop → IP Configuration → DHCP</strong>.</p>
+
+<pre>enable
+configure terminal
+
+ip dhcp excluded-address 192.168.10.1
+ip dhcp excluded-address 192.168.20.1
+
+ip dhcp pool STUDENTS
+network 192.168.10.0 255.255.255.0
+default-router 192.168.10.1
+dns-server 8.8.8.8
+exit
+
+ip dhcp pool STAFF
+network 192.168.20.0 255.255.255.0
+default-router 192.168.20.1
+dns-server 8.8.8.8
+exit</pre>
+
+<p>Verify:</p>
+<pre>show ip dhcp binding</pre>
+<div class="callout good"><strong>Expected result:</strong> PCs should automatically receive addresses from their respective DHCP pools.</div>
+</section>
+
+<section id="static">
+<h2>7. Router-to-Router Connectivity & Static Routing</h2>
+<p>Connect R1 to R2. Use:</p>
+<table>
+<tr><th>Interface</th><th>Address</th></tr>
+<tr><td>R1 G0/1</td><td>10.0.0.1/30</td></tr>
+<tr><td>R2 G0/1</td><td>10.0.0.2/30</td></tr>
+</table>
+
+<h3>7.1 Configure R1</h3>
+<pre>enable
+configure terminal
+
+interface gigabitEthernet 0/1
+ip address 10.0.0.1 255.255.255.252
+no shutdown
+exit</pre>
+
+<h3>7.2 Configure R2</h3>
+<pre>enable
+configure terminal
+hostname R2
+
+interface gigabitEthernet 0/1
+ip address 10.0.0.2 255.255.255.252
+no shutdown
+exit</pre>
+
+<p>Test:</p>
+<pre>R1# ping 10.0.0.2
+R2# ping 10.0.0.1</pre>
+
+<h3>7.3 Configure R2 LAN</h3>
+<pre>interface gigabitEthernet 0/0
+ip address 192.168.30.1 255.255.255.0
+no shutdown
+exit</pre>
+
+<p>On R1, add a route to R2's LAN:</p>
+<pre>ip route 192.168.30.0 255.255.255.0 10.0.0.2</pre>
+
+<p>On R2, add routes back to the VLAN networks:</p>
+<pre>ip route 192.168.10.0 255.255.255.0 10.0.0.1
+ip route 192.168.20.0 255.255.255.0 10.0.0.1</pre>
+
+<p>Verify:</p>
+<pre>show ip route</pre>
+<p>Look for routes marked <code>S</code>. These are static routes.</p>
+</section>
+
+<section id="ospf">
+<h2>8. Configure OSPF</h2>
+<p>Now replace manually configured inter-router routing with OSPF.</p>
+
+<h3>8.1 R1</h3>
+<pre>enable
+configure terminal
+
+router ospf 1
+network 192.168.10.0 0.0.0.255 area 0
+network 192.168.20.0 0.0.0.255 area 0
+network 10.0.0.0 0.0.0.3 area 0
+exit</pre>
+
+<h3>8.2 R2</h3>
+<pre>enable
+configure terminal
+
+router ospf 1
+network 192.168.30.0 0.0.0.255 area 0
+network 10.0.0.0 0.0.0.3 area 0
+exit</pre>
+
+<p>Verify OSPF:</p>
+<pre>show ip ospf neighbor
+show ip route
+show ip protocols</pre>
+<div class="callout good"><strong>Expected:</strong> <code>show ip ospf neighbor</code> should show the neighboring router, and learned routes should appear with an <code>O</code> code.</div>
+</section>
+
+<section id="acl">
+<h2>9. Configure an Access Control List</h2>
+<p><strong>Security requirement:</strong> Students in <code>192.168.10.0/24</code> must not be allowed to access the staff network <code>192.168.20.0/24</code>.</p>
+
+<pre>enable
+configure terminal
+
+access-list 100 deny ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
+access-list 100 permit ip any any</pre>
+
+<p>Apply the ACL to the VLAN 10 interface:</p>
+<pre>interface gigabitEthernet 0/0.10
+ip access-group 100 in
+exit</pre>
+
+<p>Test from PC1:</p>
+<pre>ping 192.168.20.10</pre>
+
+<p>The ping should fail.</p>
+
+<p>Then test another permitted destination, such as the R2 LAN:</p>
+<pre>ping 192.168.30.10</pre>
+
+<p>Verify ACL counters:</p>
+<pre>show access-lists</pre>
+<div class="callout warn"><strong>Observe:</strong> The packet counters should increase when traffic matches an ACL rule.</div>
+</section>
+
+<section id="simulation">
+<h2>10. Packet Tracer Simulation Mode</h2>
+<p>Switch from <strong>Realtime</strong> to <strong>Simulation</strong>.</p>
+
+<p>Create a simple test such as:</p>
+<div class="diagram">PC1 ───── ping ─────&gt; PC2</div>
+
+<p>Use <strong>Capture / Forward</strong> to move the packet through the network. Open the packet details and investigate the protocol layers.</p>
+
+<h3>Ethernet</h3>
+<ul>
+<li>Source MAC address</li>
+<li>Destination MAC address</li>
+<li>EtherType</li>
+</ul>
+
+<h3>IPv4</h3>
+<ul>
+<li>Source IP address</li>
+<li>Destination IP address</li>
+<li>TTL</li>
+<li>Protocol</li>
+</ul>
+
+<h3>ICMP</h3>
+<ul>
+<li>Echo Request</li>
+<li>Echo Reply</li>
+</ul>
+
+<h3>Compare Layer 2 and Layer 3 Communication</h3>
+<p>Capture:</p>
+<pre>PC1 → PC2</pre>
+<p>Then capture:</p>
+<pre>PC1 → PC3</pre>
+
+<div class="question"><strong>Q1.</strong> Are PC1 and PC2 in the same VLAN?</div>
+<div class="question"><strong>Q2.</strong> When PC1 communicates with PC3, does the packet need to pass through R1?</div>
+<div class="question"><strong>Q3.</strong> What happens to the destination MAC address when traffic passes through a router?</div>
+<div class="question"><strong>Q4.</strong> Does the destination IP address normally change when the packet is routed?</div>
+</section>
+
+<section id="verification">
+<h2>11. Essential Verification Commands</h2>
+<h3>Switch</h3>
+<pre>show running-config
+show vlan brief
+show interfaces
+show interfaces trunk
+show mac address-table</pre>
+
+<h3>Router</h3>
+<pre>show running-config
+show ip interface brief
+show ip route
+show ip protocols
+show ip ospf neighbor
+show access-lists
+show ip dhcp binding</pre>
+
+<h3>Connectivity</h3>
+<pre>ping &lt;destination&gt;
+traceroute &lt;destination&gt;</pre>
+</section>
+
+<section id="challenge">
+<h2>12. Final Practical Challenge</h2>
+<div class="callout warn"><strong>Challenge rule:</strong> Do not copy commands from the previous sections. Determine the required configuration yourself using the concepts you have learned.</div>
+
+<h3>12.1 Topology</h3>
+<div class="diagram">                    R1
+                  /    \
+                 /      \
+              SW1        R2
+             /   \        |
+            /     \       |
+          PC1     PC2    SW2
+                         /  \
+                       PC3  PC4</div>
+
+<h3>12.2 Requirements</h3>
+<table>
+<tr><th>Network</th><th>Address</th></tr>
+<tr><td>VLAN 10 — STUDENTS</td><td>192.168.10.0/24</td></tr>
+<tr><td>VLAN 20 — STAFF</td><td>192.168.20.0/24</td></tr>
+<tr><td>R1-R2</td><td>10.0.0.0/30</td></tr>
+<tr><td>R2 LAN</td><td>192.168.30.0/24</td></tr>
+</table>
+
+<h3>12.3 Required Configuration</h3>
+<ul class="checklist">
+<li><label><input type="checkbox"> Configure device hostnames.</label></li>
+<li><label><input type="checkbox"> Configure basic switch security.</label></li>
+<li><label><input type="checkbox"> Create VLANs.</label></li>
+<li><label><input type="checkbox"> Assign access ports.</label></li>
+<li><label><input type="checkbox"> Configure trunking.</label></li>
+<li><label><input type="checkbox"> Configure inter-VLAN routing.</label></li>
+<li><label><input type="checkbox"> Configure DHCP.</label></li>
+<li><label><input type="checkbox"> Configure router-to-router connectivity.</label></li>
+<li><label><input type="checkbox"> Configure static routing.</label></li>
+<li><label><input type="checkbox"> Replace static routing with OSPF.</label></li>
+<li><label><input type="checkbox"> Configure an ACL.</label></li>
+<li><label><input type="checkbox"> Test connectivity.</label></li>
+<li><label><input type="checkbox"> Examine packet movement in Simulation Mode.</label></li>
+</ul>
+
+<h3>12.4 Final Verification</h3>
+<p>Demonstrate to the instructor that:</p>
+<ul>
+<li>PCs receive addresses correctly.</li>
+<li>Devices can communicate where permitted.</li>
+<li>VLAN separation works.</li>
+<li>Inter-VLAN routing works before the ACL is applied.</li>
+<li>The ACL blocks the required traffic.</li>
+<li>OSPF forms a neighbor relationship.</li>
+<li>Routes are correctly installed.</li>
+<li>Packets can be observed in Simulation Mode.</li>
+</ul>
+</section>
+
+<section>
+<h2>13. Learning Approach</h2>
+<div class="diagram">BUILD
+  ↓
+CONFIGURE
+  ↓
+VERIFY
+  ↓
+OBSERVE
+  ↓
+BREAK / APPLY A SECURITY CONTROL
+  ↓
+TROUBLESHOOT
+  ↓
+VERIFY AGAIN</div>
+<p>The objective is not to memorize Cisco commands. For every command, students should understand <strong>what network behavior it creates, how to verify it, and how to diagnose it when it fails</strong>.</p>
+<div class="callout good">
+<strong>Connection to the next practical:</strong> Packet Tracer teaches the logical behavior of switches, routers, VLANs and routing. A subsequent Wireshark practical can use Kali/Ubuntu VMs to capture real Ethernet, ARP, ICMP, TCP, UDP, DNS and HTTP traffic and analyze the same concepts using real packets.
+</div>
+</section>
+
+<footer>
+Cisco Packet Tracer Practical Lab Sheet • Computer & Network Security
+</footer>
+</main>
+</body>
+</html>
